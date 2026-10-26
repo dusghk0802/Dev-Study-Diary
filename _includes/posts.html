@@ -1,0 +1,2 @@
+{% comment %}폴더 안의 .md 파일 = 학습일지, 파일명(날짜) 최신순{% endcomment %}
+{% assign posts = site.pages | where_exp: "p", "p.dir != '/'" | where_exp: "p", "p.name contains '.md'" | sort: "name" | reverse %}

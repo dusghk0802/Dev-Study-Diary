@@ -1,0 +1,34 @@
+---
+layout: default
+title: 전체보기
+---
+{% include posts.html %}
+<section class="card list">
+  <h2 class="list-title"><span id="cat-name">전체보기</span> <em id="cat-count">{{ posts.size }}</em></h2>
+  <ul>
+    {% for p in posts %}{% assign key = p.dir | remove: "/" %}
+    <li data-cat="{{ key }}" data-name="{{ site.cat_names[key] | default: key }}">
+      <a href="{{ p.url | relative_url }}">
+        <span class="cat">{{ site.cat_names[key] | default: key }}</span>
+        <strong>{{ p.title }}</strong>
+        {% if p.content contains "학습 내용 :" %}
+        {% assign kw = p.content | split: "학습 내용 :" | last | newline_to_br | split: "<br />" | first | strip_html | split: "," %}
+        <span class="tags">{% for k in kw %}<i>{{ k | strip }}</i>{% endfor %}</span>
+        {% endif %}
+        <time>{{ p.name | remove: ".md" }}</time>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+
+<script>
+  // ?cat=폴더명 이면 해당 카테고리만 표시
+  const cat = new URLSearchParams(location.search).get('cat');
+  if (cat) {
+    const items = [...document.querySelectorAll('.list li')];
+    const shown = items.filter(li => (li.hidden = li.dataset.cat !== cat) === false);
+    document.getElementById('cat-name').textContent = shown[0]?.dataset.name ?? cat;
+    document.getElementById('cat-count').textContent = shown.length;
+  }
+</script>

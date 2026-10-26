@@ -1,0 +1,16 @@
+title: Dev Study Diary
+description: 매일 한 걸음씩, 개발 공부 기록
+author: dusghk0802
+baseurl: /Dev-Study-Diary
+lang: ko
+
+# 폴더 이름 → 사이드바 카테고리 이름
+cat_names:
+  self-project: 셀프 프로젝트
+
+exclude: [README.md]
+
+# 학습일지(.md)는 front matter 없이도 page 레이아웃 적용
+defaults:
+  - scope: { path: "" }
+    values: { layout: page }
