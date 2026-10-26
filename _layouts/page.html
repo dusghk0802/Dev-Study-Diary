@@ -10,12 +10,13 @@ layout: default
   <header class="post-head">
     <a class="cat" href="{{ '/' | relative_url }}?cat={{ page.dir }}">{% include cat.html dir=page.dir %}</a>
     <h1>{{ page.title }}</h1>
-    <time>{{ page.name | remove: ".md" }}</time>
+    <div class="meta"><b>{{ site.author }}</b><span>·</span><time>{{ page.name | remove: ".md" }}</time></div>
   </header>
   <div class="post-body">{{ content }}</div>
 </article>
 
 <nav class="pager">
-  {% if older %}<a href="{{ older.url | relative_url }}"><small>← 이전 글</small>{{ older.title }}</a>{% else %}<span></span>{% endif %}
-  {% if i > 0 %}<a class="next" href="{{ newer.url | relative_url }}"><small>다음 글 →</small>{{ newer.title }}</a>{% endif %}
+  {% if older %}<a href="{{ older.url | relative_url }}"><small>이전글</small>{{ older.title }}</a>{% endif %}
+  {% if i > 0 %}<a href="{{ newer.url | relative_url }}"><small>다음글</small>{{ newer.title }}</a>{% endif %}
+  <a class="to-list" href="{{ '/' | relative_url }}?cat={{ page.dir }}">목록</a>
 </nav>

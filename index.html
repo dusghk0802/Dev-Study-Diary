@@ -3,47 +3,32 @@ layout: default
 title: 전체보기
 ---
 {% include posts.html %}
-{% assign groups = posts | group_by: "dir" %}
-
-<section class="profile">
-  <div class="avatar"><span>{{ site.author | slice: 0 | upcase }}</span></div>
-  <div>
-    <h1>{{ site.author }}</h1>
-    <ul class="stats">
-      <li><b>{{ posts.size }}</b> 기록</li>
-      <li><b>{{ groups.size }}</b> 카테고리</li>
-      <li><b>{{ posts.first.name | remove: ".md" }}</b> 최근</li>
-    </ul>
-    <p>{{ site.description }}</p>
-  </div>
-</section>
-
-<nav class="pills">
-  <a href="{{ '/' | relative_url }}" data-cat="">전체</a>
-  {% for g in groups %}<a href="{{ '/' | relative_url }}?cat={{ g.name }}" data-cat="{{ g.name }}">{% include cat.html dir=g.name %}</a>{% endfor %}
-</nav>
-
-<ul class="grid">
-  {% for p in posts %}
-  <li data-cat="{{ p.dir }}">
-    <a href="{{ p.url | relative_url }}">
-      <div class="thumb c{{ forloop.index0 | modulo: 5 }}">
-        <span class="cat">{% include cat.html dir=p.dir %}</span>
-        <strong>{{ p.title }}</strong>
+<section class="board">
+  <h2 class="board-title"><span id="cat-name">전체보기</span> <b id="cat-count">{{ posts.size }}</b>개의 글</h2>
+  <div class="board-head"><span>글 제목</span><span>작성일</span></div>
+  <ul class="post-list">
+    {% for p in posts %}{% capture label %}{% include cat.html dir=p.dir %}{% endcapture %}
+    <li data-dir="{{ p.dir }}" data-name="{{ label }}">
+      <a href="{{ p.url | relative_url }}">
+        <div class="row-main">
+          <strong>{{ p.title }}</strong>
+          {% if p.content contains "학습 내용 :" %}
+          <p>{{ p.content | split: "학습 내용 :" | last | newline_to_br | split: "<br />" | first | strip_html | strip }}</p>
+          {% endif %}
+        </div>
         <time>{{ p.name | remove: ".md" }}</time>
-      </div>
-      {% if p.content contains "학습 내용 :" %}
-      {% assign kw = p.content | split: "학습 내용 :" | last | newline_to_br | split: "<br />" | first | strip_html | split: "," %}
-      <div class="tags">{% for k in kw limit: 4 %}<i>#{{ k | strip }}</i>{% endfor %}</div>
-      {% endif %}
-    </a>
-  </li>
-  {% endfor %}
-</ul>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
 
 <script>
   // ?cat=폴더경로 이면 해당 카테고리만 표시
-  const cat = new URLSearchParams(location.search).get('cat') ?? '';
-  document.querySelectorAll('.pills a').forEach(a => a.classList.toggle('on', a.dataset.cat === cat));
-  if (cat) document.querySelectorAll('.grid li').forEach(li => li.hidden = li.dataset.cat !== cat);
+  const c = new URLSearchParams(location.search).get('cat');
+  if (c) {
+    const shown = [...document.querySelectorAll('.post-list li')].filter(li => !(li.hidden = li.dataset.dir !== c));
+    document.getElementById('cat-name').textContent = shown[0]?.dataset.name ?? c;
+    document.getElementById('cat-count').textContent = shown.length;
+  }
 </script>

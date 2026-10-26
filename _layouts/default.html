@@ -3,20 +3,74 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% if page.title and page.url != "/" %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+  <title>{% if page.title and page.url != "/" %}{{ page.title }} : {% endif %}{{ site.title }}</title>
   <meta name="description" content="{{ site.description }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap">
   <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}?v={{ site.time | date: '%s' }}">
 </head>
 <body>
-<header class="topbar">
-  <a class="logo" href="{{ '/' | relative_url }}">{{ site.title }}</a>
-  <a class="gh" href="https://github.com/{{ site.author }}/Dev-Study-Diary" target="_blank" rel="noopener">GitHub</a>
+{% include posts.html %}
+{% assign groups = posts | group_by: "dir" %}
+
+<!-- 최상단 바 -->
+<div class="gnb">
+  <div class="wrap">
+    <a href="{{ '/' | relative_url }}"><b>{{ site.author }}</b> 블로그</a>
+    <a href="https://github.com/{{ site.author }}/Dev-Study-Diary" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</div>
+
+<!-- 블로그 타이틀 -->
+<header class="cover">
+  <div class="wrap">
+    <a href="{{ '/' | relative_url }}"><h1>{{ site.title }}</h1></a>
+    <p>{{ site.description }}</p>
+  </div>
 </header>
 
-<main class="wrap">{{ content }}</main>
+<!-- 메뉴바 -->
+<nav class="menu">
+  <div class="wrap">
+    <a href="{{ '/' | relative_url }}" data-cat="">전체보기</a>
+    {% for g in groups %}<a href="{{ '/' | relative_url }}?cat={{ g.name }}" data-cat="{{ g.name }}">{% include cat.html dir=g.name %}</a>{% endfor %}
+  </div>
+</nav>
 
-<footer>© {{ site.time | date: "%Y" }} {{ site.author }}</footer>
+<div class="wrap layout">
+  <aside>
+    <section class="profile">
+      <div class="avatar">{{ site.author | slice: 0 | upcase }}</div>
+      <strong>{{ site.author }}</strong>
+      <p>{{ site.description }}</p>
+      <a class="btn" href="https://github.com/{{ site.author }}" target="_blank" rel="noopener">프로필</a>
+    </section>
+
+    <section class="side-box">
+      <h2>카테고리</h2>
+      <ul class="cats">
+        <li><a href="{{ '/' | relative_url }}" data-cat="">전체보기 <em>({{ posts.size }})</em></a></li>
+        {% for g in groups %}<li class="sub"><a href="{{ '/' | relative_url }}?cat={{ g.name }}" data-cat="{{ g.name }}">{% include cat.html dir=g.name %} <em>({{ g.size }})</em></a></li>{% endfor %}
+      </ul>
+    </section>
+
+    <section class="side-box">
+      <h2>최근 글</h2>
+      <ul class="recent">
+        {% for p in posts limit: 5 %}<li><a href="{{ p.url | relative_url }}">{{ p.title }}</a></li>{% endfor %}
+      </ul>
+    </section>
+  </aside>
+
+  <main>{{ content }}</main>
+</div>
+
+<footer>© {{ site.time | date: "%Y" }} {{ site.author }}. All rights reserved.</footer>
+
+<script>
+  // 현재 카테고리 메뉴 강조
+  const cat = new URLSearchParams(location.search).get('cat') ?? '';
+  const home = location.pathname.replace(/\/(index\.html)?$/, '') === '{{ site.baseurl }}';
+  document.querySelectorAll('[data-cat]').forEach(a => a.classList.toggle('on', home && a.dataset.cat === cat));
+</script>
 </body>
 </html>
