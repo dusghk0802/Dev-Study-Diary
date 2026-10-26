@@ -3,32 +3,47 @@ layout: default
 title: 전체보기
 ---
 {% include posts.html %}
-<section class="card list">
-  <h2 class="list-title"><span id="cat-name">전체보기</span> <em id="cat-count">{{ posts.size }}</em></h2>
-  <ul>
-    {% for p in posts %}{% assign key = p.dir | remove: "/" %}
-    <li data-cat="{{ key }}" data-name="{{ site.cat_names[key] | default: key }}">
-      <a href="{{ p.url | relative_url }}">
-        <span class="cat">{{ site.cat_names[key] | default: key }}</span>
-        <strong>{{ p.title }}</strong>
-        {% if p.content contains "학습 내용 :" %}
-        {% assign kw = p.content | split: "학습 내용 :" | last | newline_to_br | split: "<br />" | first | strip_html | split: "," %}
-        <span class="tags">{% for k in kw %}<i>{{ k | strip }}</i>{% endfor %}</span>
-        {% endif %}
-        <time>{{ p.name | remove: ".md" }}</time>
-      </a>
-    </li>
-    {% endfor %}
-  </ul>
+{% assign groups = posts | group_by: "dir" %}
+
+<section class="profile">
+  <div class="avatar"><span>{{ site.author | slice: 0 | upcase }}</span></div>
+  <div>
+    <h1>{{ site.author }}</h1>
+    <ul class="stats">
+      <li><b>{{ posts.size }}</b> 기록</li>
+      <li><b>{{ groups.size }}</b> 카테고리</li>
+      <li><b>{{ posts.first.name | remove: ".md" }}</b> 최근</li>
+    </ul>
+    <p>{{ site.description }}</p>
+  </div>
 </section>
 
+<nav class="pills">
+  <a href="{{ '/' | relative_url }}" data-cat="">전체</a>
+  {% for g in groups %}<a href="{{ '/' | relative_url }}?cat={{ g.name }}" data-cat="{{ g.name }}">{% include cat.html dir=g.name %}</a>{% endfor %}
+</nav>
+
+<ul class="grid">
+  {% for p in posts %}
+  <li data-cat="{{ p.dir }}">
+    <a href="{{ p.url | relative_url }}">
+      <div class="thumb c{{ forloop.index0 | modulo: 5 }}">
+        <span class="cat">{% include cat.html dir=p.dir %}</span>
+        <strong>{{ p.title }}</strong>
+        <time>{{ p.name | remove: ".md" }}</time>
+      </div>
+      {% if p.content contains "학습 내용 :" %}
+      {% assign kw = p.content | split: "학습 내용 :" | last | newline_to_br | split: "<br />" | first | strip_html | split: "," %}
+      <div class="tags">{% for k in kw limit: 4 %}<i>#{{ k | strip }}</i>{% endfor %}</div>
+      {% endif %}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+
 <script>
-  // ?cat=폴더명 이면 해당 카테고리만 표시
-  const cat = new URLSearchParams(location.search).get('cat');
-  if (cat) {
-    const items = [...document.querySelectorAll('.list li')];
-    const shown = items.filter(li => (li.hidden = li.dataset.cat !== cat) === false);
-    document.getElementById('cat-name').textContent = shown[0]?.dataset.name ?? cat;
-    document.getElementById('cat-count').textContent = shown.length;
-  }
+  // ?cat=폴더경로 이면 해당 카테고리만 표시
+  const cat = new URLSearchParams(location.search).get('cat') ?? '';
+  document.querySelectorAll('.pills a').forEach(a => a.classList.toggle('on', a.dataset.cat === cat));
+  if (cat) document.querySelectorAll('.grid li').forEach(li => li.hidden = li.dataset.cat !== cat);
 </script>

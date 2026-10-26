@@ -1,0 +1,1 @@
+{% comment %}폴더 경로 → 카테고리 이름 (예: /self-project/Invento/ → 셀프 프로젝트 › Invento){% endcomment %}{% assign parts = include.dir | split: "/" %}{% assign top = parts[1] %}{{ site.cat_names[top] | default: top }}{% for s in parts offset: 2 %} › {{ s }}{% endfor %}
